@@ -23,14 +23,27 @@ export default function AllPerks() {
 
   // ==================== SIDE EFFECTS WITH useEffect HOOK ====================
 
- /*
- TODO: HOOKS TO IMPLEMENT
- * useEffect Hook #1: Initial Data Loading
- * useEffect Hook #2: Auto-search on Input Change
+  // useEffect Hook #1: Initial Data Loading
+  // Runs once when component mounts to load all perks
+  useEffect(() => {
+    loadAllPerks()
+  }, []) // Empty dependency array = runs only on mount
 
-*/
+  // useEffect Hook #2: Auto-search on Input Change
+  // Runs whenever searchQuery or merchantFilter changes
+  // Uses debounce to avoid excessive API calls while typing
+  useEffect(() => {
+    // Set up a timer to delay the API call
+    const timer = setTimeout(() => {
+      loadAllPerks()
+    }, 500) // Wait 500ms after user stops typing
+    
+    // Cleanup function: cancel the timer if user types again
+    // This ensures we only make the API call after they stop typing
+    return () => clearTimeout(timer)
+  }, [searchQuery, merchantFilter]) // Re-run when search or filter changes
 
-  
+  // useEffect Hook #3: Extract Unique Merchants from Perks
   useEffect(() => {
     // Extract all merchant names from perks array
     const merchants = perks
@@ -136,7 +149,8 @@ export default function AllPerks() {
                 type="text"
                 className="input"
                 placeholder="Enter perk name..."
-                
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
               <p className="text-xs text-zinc-500 mt-1">
                 Auto-searches as you type, or press Enter / click Search
@@ -151,7 +165,8 @@ export default function AllPerks() {
               </label>
               <select
                 className="input"
-                
+                value={merchantFilter}
+                onChange={(e) => setMerchantFilter(e.target.value)}
               >
                 <option value="">All Merchants</option>
                 
@@ -217,7 +232,7 @@ export default function AllPerks() {
           
           <Link
             key={perk._id}
-           
+            to={`/perks/${perk._id}`}
             className="card hover:shadow-lg transition-shadow cursor-pointer"
           >
             {/* Perk Title */}
